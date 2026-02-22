@@ -1,0 +1,1983 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vòng quay lì xì</title>
+  <style>
+    :root{
+      --bg1:#070815;
+      --bg2:#120a2a;
+      --card: rgba(255,255,255,.06);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --stroke: rgba(255,255,255,.12);
+      --shadow: 0 16px 40px rgba(0,0,0,.45);
+      --radius: 18px;
+
+      --gold1:#f9e08a;
+      --gold2:#d6a944;
+      --gold3:#8a5a13;
+
+      --glow: 0 0 0 2px rgba(255,224,138,.25), 0 0 34px rgba(255,224,138,.18);
+      font-synthesis-weight: none;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(255,224,138,.18), transparent 55%),
+        radial-gradient(900px 600px at 10% 20%, rgba(239,71,111,.18), transparent 55%),
+        radial-gradient(900px 600px at 90% 20%, rgba(6,214,160,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:20px 16px 32px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+
+    .header{
+      grid-column: 1 / -1;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .title{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      min-width:260px;
+    }
+
+    .badge{
+      width:44px; height:44px;
+      border-radius:14px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.24), transparent 60%),
+        linear-gradient(135deg, rgba(255,224,138,.95), rgba(239,71,111,.85));
+      box-shadow: var(--shadow);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      color:#1a1033;
+      letter-spacing:.5px;
+    }
+
+    h1{ margin:0; font-size:18px; line-height:1.2; }
+    .sub{ margin:2px 0 0; font-size:12px; color:var(--muted); }
+
+    .gradeBtns{
+      display:flex;
+      gap:8px;
+      padding:6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--stroke);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+    }
+    .gbtn{
+      border:0;
+      padding:10px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-weight:900;
+      cursor:pointer;
+      transition: .15s ease;
+      letter-spacing:.2px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .gbtn.active{
+      color: var(--text);
+      background: rgba(255,255,255,.10);
+      box-shadow: var(--glow);
+    }
+
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .panelHead{
+      padding:14px 14px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    }
+
+    .panelHead .left{ min-width: 220px; }
+    .panelTitle{ font-size:14px; font-weight:900; margin:0; }
+    .panelDesc{ margin:4px 0 0; font-size:12px; color:var(--muted); line-height:1.35; }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    .btn:active{ transform: translateY(0); }
+    .btn.primary{
+      border-color: rgba(255,224,138,.35);
+      background: linear-gradient(135deg, rgba(255,224,138,.26), rgba(239,71,111,.12));
+      box-shadow: var(--glow);
+    }
+    .btn.good{
+      border-color: rgba(6,214,160,.28);
+      background: rgba(6,214,160,.10);
+    }
+    .btn.danger{
+      border-color: rgba(239,71,111,.30);
+      background: rgba(239,71,111,.12);
+    }
+    .btn.small{
+      padding:8px 10px;
+      border-radius: 12px;
+      font-size:12px;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color: var(--muted);
+      padding:10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      user-select:none;
+    }
+    .toggle input{ width:18px; height:18px; cursor:pointer; }
+
+    .inputPill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size:12px;
+      user-select:none;
+    }
+    .inputPill input{
+      width:84px;
+      padding:8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      font-weight:900;
+      outline:none;
+    }
+    .inputPill small{ opacity:.9; }
+
+    .wheelArea{
+      padding:14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      position:relative;
+    }
+
+    .stageRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .status{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-size:12px;
+      color: var(--muted);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .pill b{ color: var(--text); }
+
+    .wheelWrap{
+      display:grid;
+      place-items:center;
+      position:relative;
+      padding:10px 0 4px;
+    }
+
+    .wheelShell{
+      width:min(560px, 92vw);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      position:relative;
+      filter: drop-shadow(0 20px 60px rgba(0,0,0,.55));
+    }
+
+    canvas#wheel{
+      width:100%;
+      height:100%;
+      display:block;
+      border-radius:50%;
+      background: radial-gradient(circle at 50% 45%, rgba(255,255,255,.08), rgba(255,255,255,0) 60%);
+      border: 2px solid rgba(255,255,255,.10);
+    }
+
+    canvas#confetti{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      opacity:0;
+      transition: opacity .25s ease;
+    }
+
+    .pointer{
+      position:absolute;
+      top:-8px;
+      left:50%;
+      transform: translateX(-50%);
+      width:0; height:0;
+      border-left:14px solid transparent;
+      border-right:14px solid transparent;
+      border-top:26px solid rgba(255,224,138,.95);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+    }
+    .pointer::after{
+      content:"";
+      position:absolute;
+      left:-7px;
+      top:-24px;
+      width:14px; height:14px;
+      border-radius:50%;
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 0 0 4px rgba(255,224,138,.22), 0 0 30px rgba(255,224,138,.20);
+    }
+
+    .centerBadge{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+    }
+
+    .centerCard{
+      width:min(280px, 68%);
+      border-radius: 18px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 18px 50px rgba(0,0,0,.35);
+      padding:12px 14px;
+      text-align:center;
+      backdrop-filter: blur(6px);
+    }
+    .centerCard .label{ font-size:12px; color: var(--muted); margin:0; }
+    .centerCard .value{
+      margin:6px 0 0;
+      font-size:26px;
+      font-weight:950;
+      letter-spacing:.5px;
+      text-wrap:balance;
+    }
+    .centerCard .hint{
+      margin:8px 0 0;
+      font-size:12px;
+      color: rgba(255,255,255,.72);
+      line-height:1.35;
+    }
+
+    .side{ display:grid; gap:16px; }
+
+    /* ======== GOLD BOARD ======== */
+    .goldBoard{
+      padding:12px 14px 14px;
+      background:
+        radial-gradient(800px 260px at 10% -10%, rgba(255,255,255,.28), transparent 40%),
+        linear-gradient(135deg, rgba(249,224,138,.95), rgba(214,169,68,.88));
+      color: rgba(25,14,5,.92);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 22px 60px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.12);
+      position:relative;
+    }
+    .goldBoard::before{
+      content:"";
+      position:absolute;
+      inset:10px;
+      border-radius: 16px;
+      border: 2px solid rgba(138,90,19,.35);
+      pointer-events:none;
+    }
+    .goldTitle{
+      margin:0 0 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:1000;
+      letter-spacing:.3px;
+    }
+    .goldTitle span{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
+    }
+    .goldChip{
+      font-size:11px;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(0,0,0,.12);
+      color: rgba(25,14,5,.85);
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .goldList{
+      margin:0;
+      padding-left:18px;
+      line-height:1.45;
+      font-weight:900;
+    }
+    .goldList li{
+      margin:6px 0;
+      padding:8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.20);
+      border: 1px solid rgba(0,0,0,.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+    }
+
+    .studentGroup{
+      margin:8px 0 0;
+      padding:10px 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.20);
+      border: 1px solid rgba(0,0,0,.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+    }
+    .studentGroup .h{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-weight:1000;
+    }
+    .studentNums{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .tagNum{
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(0,0,0,.12);
+      font-weight:1000;
+      color: rgba(25,14,5,.92);
+    }
+
+    @keyframes pop {
+      0%{ transform: scale(.96); opacity:.3; }
+      60%{ transform: scale(1.03); opacity:1; }
+      100%{ transform: scale(1); }
+    }
+    .pop{ animation: pop .35s ease; }
+
+    /* ======== LOG ======== */
+    .log{
+      padding:12px 14px 14px;
+    }
+    .log pre{
+      margin:0;
+      padding:12px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      overflow:auto;
+      max-height: 260px;
+      line-height:1.35;
+      color: rgba(255,255,255,.86);
+      font-size:13px;
+      white-space:pre-wrap;
+    }
+    .logActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .proofBar{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size:12px;
+    }
+    .proofBar b{ color: var(--text); }
+
+    /* ======== OVERLAY ======== */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      z-index: 9999;
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(255,224,138,.22), transparent 55%),
+        radial-gradient(900px 600px at 10% 20%, rgba(239,71,111,.20), transparent 55%),
+        radial-gradient(900px 600px at 90% 20%, rgba(6,214,160,.16), transparent 55%),
+        linear-gradient(180deg, rgba(7,8,21,.92), rgba(18,10,42,.92));
+      backdrop-filter: blur(6px);
+      overflow:hidden;
+    }
+    .overlay.show{ display:block; }
+    .overlayCanvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+    }
+    .overlayInner{
+      position:relative;
+      height:100%;
+      padding: 20px 16px;
+      display:grid;
+      place-items:center;
+    }
+    .overlayCard{
+      width:min(1100px, 96vw);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.28);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .overlayHead{
+      padding: 14px 14px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    }
+    .overlayHead h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.3px;
+    }
+    .overlayHead .sub2{
+      margin-top:4px;
+      font-size:12px;
+      color: rgba(255,255,255,.70);
+      line-height:1.35;
+    }
+    .overlayBody{
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+    }
+    @media (max-width: 900px){
+      .overlayBody{ grid-template-columns: 1fr; }
+    }
+    .overlayActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">
+        <div class="badge">🎁</div>
+        <div>
+          <h1>Vòng quay lì xì</h1>
+          <!-- ĐÃ XÓA dòng mô tả dài theo yêu cầu -->
+          <div class="sub"></div>
+        </div>
+      </div>
+
+      <div class="gradeBtns" role="tablist" aria-label="Chọn khối">
+        <button class="gbtn active" id="btn10" role="tab" aria-selected="true">Khối 10</button>
+        <button class="gbtn" id="btn11" role="tab" aria-selected="false">Khối 11</button>
+        <button class="gbtn" id="btn12" role="tab" aria-selected="false">Khối 12</button>
+      </div>
+    </div>
+
+    <!-- LEFT: WHEEL -->
+    <section class="panel">
+      <div class="panelHead">
+        <div class="left">
+          <p class="panelTitle" id="panelTitle">Khối 10</p>
+          <p class="panelDesc" id="panelDesc">Quay chọn 3 lớp • Mỗi lớp chọn 3 học sinh • Không lặp</p>
+        </div>
+
+        <div class="toolbar">
+          <label class="toggle" title="Âm thanh tick + win + kèn/pháo">
+            <input type="checkbox" id="soundToggle" checked />
+            Âm thanh
+          </label>
+          <label class="toggle" title="Auto quay liên tiếp">
+            <input type="checkbox" id="autoToggle" />
+            Auto
+          </label>
+
+          <div class="inputPill" id="studentMaxWrap" style="display:none" title="Nhập sĩ số lớp để quay từ 1..sĩ số">
+            <span>👥 Số HS lớp:</span>
+            <input id="studentMaxInput" type="number" min="1" step="1" value="50" />
+            <small>(1..N)</small>
+          </div>
+
+          <button class="btn" id="fsBtn" title="Toàn màn hình">⛶ Fullscreen</button>
+        </div>
+      </div>
+
+      <div class="wheelArea">
+        <div class="stageRow">
+          <div class="status">
+            <span class="pill">Chế độ: <b id="modeText">Chọn lớp</b></span>
+            <span class="pill">Tiến độ: <b id="progressText">0/3 lớp</b></span>
+            <span class="pill">Lớp hiện tại: <b id="currentClassText">–</b></span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="btn" id="undoBtn" style="display:none;">↩️ Xóa lượt vừa quay</button>
+            <button class="btn primary" id="spinBtn">🌀 QUAY</button>
+            <button class="btn danger" id="resetBtn">↺ Reset</button>
+          </div>
+        </div>
+
+        <div class="wheelWrap">
+          <div class="wheelShell">
+            <div class="pointer" aria-hidden="true"></div>
+            <canvas id="wheel" width="900" height="900" aria-label="Vòng quay"></canvas>
+            <canvas id="confetti" width="900" height="900"></canvas>
+
+            <div class="centerBadge">
+              <div class="centerCard">
+                <p class="label" id="centerLabel">Sẵn sàng quay</p>
+                <div class="value" id="centerValue">🎁</div>
+                <div class="hint" id="centerHint">
+                  Bấm <b>QUAY</b> để chọn lớp. Sau khi đủ lớp, hệ thống chuyển sang chọn học sinh theo từng lớp.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: RESULTS -->
+    <aside class="side">
+      <section class="panel">
+        <div class="panelHead">
+          <div class="left">
+            <p class="panelTitle">Bảng vàng kết quả</p>
+            <p class="panelDesc">Congratulations.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn small" id="showOverlayBtn">🎬 Trình chiếu</button>
+          </div>
+        </div>
+
+        <div class="goldBoard" style="border-bottom-left-radius:0;border-bottom-right-radius:0;">
+          <div class="goldTitle">
+            <span>🏆 Bảng vàng LỚP</span>
+            <span class="goldChip" id="goldClassChip">0/3 lớp</span>
+          </div>
+          <ol class="goldList" id="goldClasses">
+            <li style="opacity:.85;">Chưa có lớp nào được chọn.</li>
+          </ol>
+        </div>
+
+        <div class="goldBoard" style="border-top-left-radius:0;border-top-right-radius:0;border-top:1px solid rgba(0,0,0,.10);">
+          <div class="goldTitle">
+            <span>👑 Bảng vàng HỌC SINH</span>
+            <span class="goldChip" id="goldStudentChip">0 lớp đã có HS</span>
+          </div>
+          <div id="goldStudents" style="font-weight:900;">
+            <div style="opacity:.85;">Chưa có học sinh nào được chọn.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panelHead">
+          <div class="left">
+            <p class="panelTitle">Log + Minh chứng</p>
+            <p class="panelDesc">Copy / CSV / Lưu minh chứng.</p>
+          </div>
+        </div>
+        <div class="log">
+          <pre id="logBox">Chưa có kết quả.</pre>
+          <div class="logActions">
+            <button class="btn good" id="copyBtn">📋 Copy</button>
+            <button class="btn" id="csvBtn">⬇️ Tải CSV</button>
+            <button class="btn" id="clearLogBtn">🧹 Xóa log</button>
+          </div>
+
+          <div class="proofBar">
+            <div>💾 Minh chứng đã lưu (khối hiện tại): <b id="proofCount">0</b> lượt</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn small" id="proofBtn">📚 Minh chứng</button>
+              <button class="btn small" id="exportAllBtn">🧾 Xuất tất cả JSON</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- OVERLAY: Full-screen board -->
+  <div class="overlay" id="overlay">
+    <canvas class="overlayCanvas" id="overlayCanvas"></canvas>
+    <div class="overlayInner">
+      <div class="overlayCard">
+        <div class="overlayHead">
+          <div>
+            <h2 id="overlayTitle">🎉 Bảng vàng – Khối 10</h2>
+            <div class="sub2" id="overlaySub">Kết quả đã hoàn tất • Click “Đóng” hoặc bấm ESC để thoát</div>
+          </div>
+          <div class="overlayActions">
+            <button class="btn small" id="overlayCopyBtn">📋 Copy</button>
+            <button class="btn small" id="overlayCsvBtn">⬇️ CSV</button>
+            <button class="btn small" id="overlayJsonBtn">🧾 JSON</button>
+            <button class="btn small danger" id="overlayCloseBtn">✖ Đóng</button>
+          </div>
+        </div>
+        <div class="overlayBody">
+          <div class="goldBoard" id="overlayGoldClasses"></div>
+          <div class="goldBoard" id="overlayGoldStudents"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: Proof list -->
+  <div class="overlay" id="proofOverlay">
+    <canvas class="overlayCanvas" id="proofCanvas"></canvas>
+    <div class="overlayInner">
+      <div class="overlayCard">
+        <div class="overlayHead">
+          <div>
+            <h2 id="proofTitle">📚 Minh chứng – Khối 10</h2>
+            <div class="sub2">Danh sách các lượt đã lưu trong trình duyệt • (Chọn 1 lượt để xem)</div>
+          </div>
+          <div class="overlayActions">
+            <button class="btn small" id="proofExportBtn">🧾 Xuất JSON (khối)</button>
+            <button class="btn small danger" id="proofCloseBtn">✖ Đóng</button>
+          </div>
+        </div>
+        <div class="overlayBody" style="grid-template-columns: 0.9fr 1.1fr;">
+          <div class="panel" style="border-radius:18px; overflow:hidden; background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);">
+            <div class="panelHead" style="border-bottom:1px solid rgba(255,255,255,.10);">
+              <div class="left">
+                <p class="panelTitle" style="margin:0;">Danh sách lượt đã lưu</p>
+                <p class="panelDesc" style="margin:4px 0 0;">Click để xem. Có thể xóa từng lượt.</p>
+              </div>
+            </div>
+            <div style="padding:12px 14px;">
+              <div id="proofList" style="display:grid; gap:10px;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="goldBoard" id="proofPreview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/** =========================
+ *  CONFIG
+ *  ========================= */
+const CONFIG = {
+  defaultStudentMax: 50,
+  pickClasses: 3,
+  pickStudentsPerClass: 3,
+
+  // tốc độ hành trình (logic nội bộ, KHÔNG hiển thị)
+  spinRevPerSec: 2.2,
+  accelSec: 0.6,
+  decelSec: 0.9,
+  turnsMin: 14,
+  turnsMax: 20,
+  tickMinMs: 35,
+
+  denseLabelStep: 5,
+};
+
+const STORAGE_KEY = "lixiwheel_runs_v1";
+
+/** =========================
+ *  STAGES
+ *  ========================= */
+const STAGES = {
+  "10": { title: "Khối 10", classCount: 12 },
+  "11": { title: "Khối 11", classCount: 14 },
+  "12": { title: "Khối 12", classCount: 13 },
+};
+
+function classLabel(stageKey, n){
+  return `Lớp ${stageKey}A${n}`;
+}
+
+/** =========================
+ *  AUDIO (WebAudio)
+ *  ========================= */
+const AudioFX = (() => {
+  let ctx = null;
+  let enabled = true;
+
+  function ensure() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  }
+  function resume(){ if (ctx && ctx.state === "suspended") ctx.resume(); }
+
+  function beep({freq=900, dur=0.03, type="square", gain=0.06} = {}) {
+    if (!enabled) return;
+    const c = ensure();
+    const now = c.currentTime;
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, now);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    o.connect(g).connect(c.destination);
+    o.start(now);
+    o.stop(now + dur + 0.02);
+  }
+
+  function tick(){ beep({freq: 1050, dur: 0.02, type:"square", gain:0.05}); }
+
+  function win(){
+    if (!enabled) return;
+    const c = ensure();
+    const now = c.currentTime;
+    const freqs = [523.25, 659.25, 783.99];
+    freqs.forEach((f, i) => {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(f, now);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.07, now + 0.02 + i*0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35 + i*0.03);
+      o.connect(g).connect(c.destination);
+      o.start(now + i*0.01);
+      o.stop(now + 0.5 + i*0.03);
+    });
+  }
+
+  function fanfare(){
+    if (!enabled) return;
+    const c = ensure();
+    const now = c.currentTime;
+
+    const horn = (freq, t0) => {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = "sawtooth";
+      o.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.10, t0 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.35);
+      o.connect(g).connect(c.destination);
+      o.start(t0);
+      o.stop(t0 + 0.38);
+    };
+    horn(220, now);
+    horn(330, now + 0.08);
+    horn(440, now + 0.16);
+
+    const noiseBurst = (t0) => {
+      const bufferSize = 2 * c.sampleRate;
+      const noiseBuffer = c.createBuffer(1, bufferSize, c.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1);
+
+      const noise = c.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const filter = c.createBiquadFilter();
+      filter.type = "highpass";
+      filter.frequency.setValueAtTime(900, t0);
+
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.14, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+
+      noise.connect(filter).connect(g).connect(c.destination);
+      noise.start(t0);
+      noise.stop(t0 + 0.25);
+    };
+    noiseBurst(now + 0.02);
+    noiseBurst(now + 0.18);
+  }
+
+  return {
+    setEnabled(v){ enabled = !!v; },
+    resume,
+    tick, win, fanfare
+  };
+})();
+
+/** =========================
+ *  CONFETTI RAIN (overlay)
+ *  ========================= */
+class ConfettiRain {
+  constructor(canvas){
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.particles = [];
+    this._anim = null;
+    this.running = false;
+  }
+  resize(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = this.canvas.getBoundingClientRect();
+    this.canvas.width = Math.floor(rect.width * dpr);
+    this.canvas.height = Math.floor(rect.height * dpr);
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  start(){
+    this.running = true;
+    this.resize();
+    this.particles = Array.from({length: 180}, () => this._spawn(true));
+    const step = () => {
+      if (!this.running) return;
+      this._tick();
+      this._anim = requestAnimationFrame(step);
+    };
+    cancelAnimationFrame(this._anim);
+    this._anim = requestAnimationFrame(step);
+  }
+  stop(){
+    this.running = false;
+    cancelAnimationFrame(this._anim);
+    this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+  }
+  _spawn(initial=false){
+    const rect = this.canvas.getBoundingClientRect();
+    const x = Math.random() * rect.width;
+    const y = initial ? Math.random() * rect.height : -20 - Math.random()*80;
+    const vy = 2.2 + Math.random()*4.2;
+    const vx = -1.2 + Math.random()*2.4;
+    const size = 6 + Math.random()*10;
+    const rot = Math.random()*Math.PI*2;
+    const vr = (-0.12 + Math.random()*0.24);
+    const c = `hsl(${Math.random()*360} 88% 60%)`;
+    return {x,y,vx,vy,size,rot,vr,c};
+  }
+  _tick(){
+    const rect = this.canvas.getBoundingClientRect();
+    const ctx = this.ctx;
+    ctx.clearRect(0,0,rect.width,rect.height);
+
+    this.particles.forEach((p, i) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+
+      if (p.y > rect.height + 30) this.particles[i] = this._spawn(false);
+      if (p.x < -30) p.x = rect.width + 30;
+      if (p.x > rect.width + 30) p.x = -30;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = 0.95;
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      ctx.restore();
+    });
+  }
+}
+
+/** =========================
+ *  WHEEL (Canvas)
+ *  ========================= */
+class LuckyWheel {
+  constructor(canvas, confettiCanvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.confettiCanvas = confettiCanvas;
+    this.cctx = confettiCanvas.getContext("2d");
+
+    this.segments = [];
+    this.angle = 0;
+    this.spinning = false;
+
+    this._anim = null;
+    this._lastTickIndex = null;
+    this._lastTickAt = 0;
+    this._pointerAngle = -Math.PI/2;
+
+    this._confetti = [];
+    this._confettiAnim = null;
+
+    window.addEventListener("resize", () => this.draw());
+  }
+
+  setSegments(arr) {
+    this.segments = arr.map((x, i) => ({...x, _i:i}));
+    this._lastTickIndex = null;
+    this.draw();
+  }
+
+  _size(){
+    return { w: this.canvas.width, h: this.canvas.height };
+  }
+
+  _palette(n, i){
+    const sat = 82;
+    const light = 52;
+    const hue = (i * 360 / Math.max(1,n)) % 360;
+    return `hsl(${hue} ${sat}% ${light}%)`;
+  }
+
+  _drawBackground(){
+    const {w,h} = this._size();
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.clearRect(0,0,w,h);
+
+    const g = ctx.createRadialGradient(w/2,h/2, 40, w/2,h/2, w/2);
+    g.addColorStop(0, "rgba(255,255,255,0.12)");
+    g.addColorStop(0.55, "rgba(255,255,255,0.02)");
+    g.addColorStop(1, "rgba(0,0,0,0.0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(w/2,h/2, w*0.49, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.arc(w/2,h/2, w*0.47, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.10)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(w/2,h/2, w*0.15, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  draw() {
+    const ctx = this.ctx;
+    const {w,h} = this._size();
+    const cx = w/2, cy = h/2;
+    const r = w*0.44;
+
+    this._drawBackground();
+
+    const n = this.segments.length || 1;
+    const arc = (Math.PI*2)/n;
+
+    for (let i=0;i<n;i++){
+      const seg = this.segments[i];
+      const start = this.angle + i*arc;
+      const end = start + arc;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,start,end,false);
+      ctx.closePath();
+      ctx.fillStyle = seg?.color || this._palette(n,i);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.22)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+
+      if (seg && seg.label != null){
+        const many = n >= 30;
+        const step = many ? CONFIG.denseLabelStep : 1;
+        const shouldDraw = !many || ((i % step) === 0);
+        if (shouldDraw){
+          const mid = start + arc/2;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(mid);
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          const fontSize = many ? 16 : (n>=18 ? 18 : 22);
+          ctx.font = `900 ${fontSize}px ui-sans-serif, system-ui`;
+          ctx.fillStyle = "rgba(0,0,0,0.78)";
+          ctx.strokeStyle = "rgba(255,255,255,0.75)";
+          ctx.lineWidth = 2.5;
+          const tx = r*0.88;
+          ctx.strokeText(seg.label, tx, 0);
+          ctx.fillText(seg.label, tx, 0);
+          ctx.restore();
+        }
+      }
+    }
+
+    ctx.save();
+    const capR = w*0.12;
+    const capG = ctx.createRadialGradient(cx-12,cy-12, 10, cx,cy, capR);
+    capG.addColorStop(0, "rgba(255,255,255,0.78)");
+    capG.addColorStop(0.35, "rgba(255,255,255,0.22)");
+    capG.addColorStop(1, "rgba(0,0,0,0.35)");
+    ctx.fillStyle = capG;
+    ctx.beginPath();
+    ctx.arc(cx,cy,capR,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,224,138,0.28)";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(cx,cy,capR+6,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  _sectorIndexAtPointer(angleOverride=null){
+    const n = this.segments.length || 1;
+    const arc = (Math.PI*2)/n;
+    const a = angleOverride == null ? this.angle : angleOverride;
+
+    let rel = (this._pointerAngle - a) % (Math.PI*2);
+    if (rel < 0) rel += Math.PI*2;
+
+    let idx = Math.floor(rel / arc);
+    if (idx >= n) idx = n-1;
+    if (idx < 0) idx = 0;
+    return idx;
+  }
+
+  spin(onDone){
+    if (this.spinning || this.segments.length < 2) return;
+    this.spinning = true;
+    AudioFX.resume();
+
+    let turns = randInt(CONFIG.turnsMin, CONFIG.turnsMax);
+    const targetRel = Math.random() * (Math.PI * 2);
+    const finalBase = (this._pointerAngle - targetRel);
+
+    const startAngle = this.angle;
+
+    const w = Math.max(2.0, CONFIG.spinRevPerSec) * (Math.PI * 2);
+
+    const ta = Math.max(0.15, CONFIG.accelSec);
+    const td = Math.max(0.20, CONFIG.decelSec);
+
+    const alpha = w / ta;
+    const beta  = w / td;
+
+    const thetaMin = 0.5 * w * (ta + td);
+
+    let finalAngle = finalBase + turns * (Math.PI * 2);
+
+    let delta = finalAngle - startAngle;
+    if (delta < 0) delta += Math.ceil((-delta)/(Math.PI*2))*(Math.PI*2);
+
+    while (delta < thetaMin + (Math.PI * 2)) {
+      turns += 1;
+      delta += (Math.PI * 2);
+    }
+
+    const tc = Math.max(0, (delta / w) - 0.5 * (ta + td));
+    const T = ta + tc + td;
+
+    this._lastTickIndex = this._sectorIndexAtPointer(startAngle);
+    this._lastTickAt = performance.now();
+
+    const t0 = performance.now();
+
+    const step = (now) => {
+      const t = (now - t0) / 1000;
+      let a;
+
+      if (t <= ta) {
+        a = startAngle + 0.5 * alpha * t * t;
+      } else if (t <= ta + tc) {
+        const t1 = t - ta;
+        a = startAngle + 0.5 * w * ta + w * t1;
+      } else if (t <= T) {
+        const t2 = t - ta - tc;
+        const thetaAcc = 0.5 * w * ta;
+        const thetaCruise = w * tc;
+        a = startAngle + thetaAcc + thetaCruise + (w * t2 - 0.5 * beta * t2 * t2);
+      } else {
+        a = startAngle + delta;
+      }
+
+      this.angle = a;
+      this.draw();
+
+      const idxNow = this._sectorIndexAtPointer(this.angle);
+      if (idxNow !== this._lastTickIndex){
+        this._lastTickIndex = idxNow;
+        if (!CONFIG.tickMinMs || (now - this._lastTickAt) >= CONFIG.tickMinMs) {
+          this._lastTickAt = now;
+          AudioFX.tick();
+        }
+      }
+
+      if (t < T){
+        this._anim = requestAnimationFrame(step);
+      } else {
+        this.spinning = false;
+        const idx = this._sectorIndexAtPointer(this.angle);
+        const chosen = this.segments[idx];
+        AudioFX.win();
+        onDone?.(chosen, idx);
+      }
+    };
+
+    this._anim = requestAnimationFrame(step);
+  }
+
+  confettiBurst(){
+    const {w,h} = this._size();
+    const cx = w/2, cy = h/2;
+    const R = w*0.43;
+
+    this._confetti = Array.from({length: 180}, () => {
+      const ang = Math.random()*Math.PI*2;
+      const rad = Math.random()*R*0.15;
+      return {
+        x: cx + Math.cos(ang)*rad,
+        y: cy + Math.sin(ang)*rad,
+        vx: (Math.random()*2-1)*6,
+        vy: (Math.random()*2-1)*6 - 2,
+        g: 0.16 + Math.random()*0.18,
+        r: 3 + Math.random()*5,
+        a: 1,
+        rot: Math.random()*Math.PI*2,
+        vr: (Math.random()*2-1)*0.25,
+        c: `hsl(${Math.random()*360} 88% 60%)`
+      };
+    });
+
+    this.confettiCanvas.style.opacity = "1";
+
+    const start = performance.now();
+    const ttl = 2600;
+
+    const tick = (now) => {
+      const t = now - start;
+      const k = Math.max(0, 1 - t/ttl);
+
+      const ctx = this.cctx;
+      ctx.clearRect(0,0,w,h);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx,cy,R,0,Math.PI*2);
+      ctx.clip();
+
+      this._confetti.forEach(p => {
+        p.vy += p.g;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.a = k;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = p.a;
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+        ctx.restore();
+      });
+
+      ctx.restore();
+
+      if (t < ttl){
+        this._confettiAnim = requestAnimationFrame(tick);
+      } else {
+        this.confettiCanvas.style.opacity = "0";
+        ctx.clearRect(0,0,w,h);
+      }
+    };
+
+    cancelAnimationFrame(this._confettiAnim);
+    this._confettiAnim = requestAnimationFrame(tick);
+  }
+}
+
+/** =========================
+ *  APP STATE
+ *  ========================= */
+const el = (id) => document.getElementById(id);
+const ui = {
+  btn10: el("btn10"),
+  btn11: el("btn11"),
+  btn12: el("btn12"),
+
+  panelTitle: el("panelTitle"),
+  panelDesc: el("panelDesc"),
+
+  modeText: el("modeText"),
+  progressText: el("progressText"),
+  currentClassText: el("currentClassText"),
+
+  spinBtn: el("spinBtn"),
+  resetBtn: el("resetBtn"),
+  undoBtn: el("undoBtn"),
+
+  soundToggle: el("soundToggle"),
+  autoToggle: el("autoToggle"),
+
+  studentMaxWrap: el("studentMaxWrap"),
+  studentMaxInput: el("studentMaxInput"),
+
+  fsBtn: el("fsBtn"),
+
+  centerLabel: el("centerLabel"),
+  centerValue: el("centerValue"),
+  centerHint: el("centerHint"),
+
+  goldClassChip: el("goldClassChip"),
+  goldStudentChip: el("goldStudentChip"),
+  goldClasses: el("goldClasses"),
+  goldStudents: el("goldStudents"),
+
+  showOverlayBtn: el("showOverlayBtn"),
+
+  logBox: el("logBox"),
+  copyBtn: el("copyBtn"),
+  csvBtn: el("csvBtn"),
+  clearLogBtn: el("clearLogBtn"),
+
+  proofCount: el("proofCount"),
+  proofBtn: el("proofBtn"),
+  exportAllBtn: el("exportAllBtn"),
+
+  overlay: el("overlay"),
+  overlayCanvas: el("overlayCanvas"),
+  overlayTitle: el("overlayTitle"),
+  overlaySub: el("overlaySub"),
+  overlayGoldClasses: el("overlayGoldClasses"),
+  overlayGoldStudents: el("overlayGoldStudents"),
+  overlayCloseBtn: el("overlayCloseBtn"),
+  overlayCopyBtn: el("overlayCopyBtn"),
+  overlayCsvBtn: el("overlayCsvBtn"),
+  overlayJsonBtn: el("overlayJsonBtn"),
+
+  proofOverlay: el("proofOverlay"),
+  proofCanvas: el("proofCanvas"),
+  proofTitle: el("proofTitle"),
+  proofList: el("proofList"),
+  proofPreview: el("proofPreview"),
+  proofCloseBtn: el("proofCloseBtn"),
+  proofExportBtn: el("proofExportBtn"),
+};
+
+const wheel = new LuckyWheel(el("wheel"), el("confetti"));
+const overlayFX = new ConfettiRain(ui.overlayCanvas);
+const proofFX = new ConfettiRain(ui.proofCanvas);
+
+const State = {
+  stageKey: "10",
+  auto: false,
+  sound: true,
+
+  phase: "classes", // classes | students | done
+
+  availableClasses: [],
+  classesPicked: [],
+  currentClassIdx: 0,
+
+  studentsAvailable: [],
+  studentsPickedMap: new Map(),
+  classSizeMap: new Map(),
+
+  lastPop: { type:null, key:null },
+
+  history: [],
+  lastSavedRunId: null,
+};
+
+function initStage(stageKey){
+  State.stageKey = stageKey;
+  State.phase = "classes";
+
+  State.availableClasses = range(1, STAGES[stageKey].classCount).map(n => ({
+    value: n,
+    label: `${n}`,
+    pretty: classLabel(stageKey, n),
+  }));
+  State.classesPicked = [];
+  State.currentClassIdx = 0;
+
+  State.studentsAvailable = [];
+  State.studentsPickedMap = new Map();
+  State.classSizeMap = new Map();
+
+  State.lastPop = { type:null, key:null };
+  State.history = [];
+  State.lastSavedRunId = null;
+
+  ui.panelTitle.textContent = `${STAGES[stageKey].title} (${STAGES[stageKey].classCount} lớp)`;
+
+  // ĐÃ XÓA phần hiển thị "tốc độ hành trình ..." theo yêu cầu
+  ui.panelDesc.textContent =
+    `Quay chọn ${CONFIG.pickClasses} lớp • Mỗi lớp chọn ${CONFIG.pickStudentsPerClass} học sinh`;
+
+  ui.modeText.textContent = "Chọn lớp";
+  ui.progressText.textContent = `0/${CONFIG.pickClasses} lớp`;
+  ui.currentClassText.textContent = "–";
+
+  ui.studentMaxWrap.style.display = "none";
+  ui.studentMaxInput.value = String(CONFIG.defaultStudentMax);
+
+  ui.centerLabel.textContent = "Sẵn sàng quay";
+  ui.centerValue.textContent = "🎁";
+  ui.centerHint.innerHTML = `Bấm <b>QUAY</b> để chọn lớp.`;
+
+  setWheelSegmentsForClasses();
+  renderGoldBoards();
+  updateUndoButton();
+
+  clearLog();
+  appendLog(`=== ${STAGES[stageKey].title} ===`);
+  appendLog(`• Mục tiêu: ${CONFIG.pickClasses} lớp; mỗi lớp ${CONFIG.pickStudentsPerClass} HS`);
+  refreshProofCount();
+}
+
+/** ===== Save/Proof + Overlay + UI logic (giữ nguyên) ===== */
+function safeParseJSON(s, fallback){ try { return JSON.parse(s); } catch { return fallback; } }
+function loadRuns(){ const raw = localStorage.getItem(STORAGE_KEY); const arr = safeParseJSON(raw, []); return Array.isArray(arr) ? arr : []; }
+function saveRuns(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+function buildRunSnapshot(){
+  const createdAt = new Date().toISOString();
+  const stage = State.stageKey;
+  const classes = State.classesPicked.map(c => {
+    const name = c.pretty;
+    const size = State.classSizeMap.get(name) ?? CONFIG.defaultStudentMax;
+    const students = (State.studentsPickedMap.get(name) || []).slice();
+    return { name, size, students };
+  });
+  return {
+    id: `${stage}-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+    createdAt,
+    stageKey: stage,
+    stageTitle: STAGES[stage].title,
+    config: {
+      pickClasses: CONFIG.pickClasses,
+      pickStudentsPerClass: CONFIG.pickStudentsPerClass
+    },
+    classes
+  };
+}
+function saveRun(run){ const runs = loadRuns(); runs.push(run); saveRuns(runs); return run.id; }
+function countRunsForStage(stageKey){ return loadRuns().filter(r => r.stageKey === stageKey).length; }
+function refreshProofCount(){ ui.proofCount.textContent = String(countRunsForStage(State.stageKey)); }
+function exportJSON(obj, filename){
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+function deleteRun(runId){
+  const runs = loadRuns();
+  const next = runs.filter(r => r.id !== runId);
+  saveRuns(next);
+  refreshProofCount();
+  renderProofList();
+}
+
+function renderOverlayBoards(){
+  const title = `${STAGES[State.stageKey].title} – Bảng vàng`;
+  ui.overlayTitle.textContent = `🎉 ${title}`;
+  ui.overlaySub.textContent = State.phase === "done"
+    ? "Kết quả đã hoàn tất • Click “Đóng” hoặc bấm ESC để thoát"
+    : "Đang quay / chưa hoàn tất • Đây là bảng vàng hiện tại";
+
+  const clsHtml = `
+    <div class="goldTitle">
+      <span>🏆 Bảng vàng LỚP</span>
+      <span class="goldChip">${State.classesPicked.length}/${CONFIG.pickClasses} lớp</span>
+    </div>
+    <ol class="goldList">
+      ${State.classesPicked.length
+        ? State.classesPicked.map(c => `<li>✨ ${escapeHtml(c.pretty)}</li>`).join("")
+        : `<li style="opacity:.85;">Chưa có lớp nào được chọn.</li>`
+      }
+    </ol>
+  `;
+  ui.overlayGoldClasses.innerHTML = clsHtml;
+
+  const groups = State.classesPicked.map(c => c.pretty);
+  const studHtml = `
+    <div class="goldTitle">
+      <span>👑 Bảng vàng HỌC SINH</span>
+      <span class="goldChip">${groups.filter(x => (State.studentsPickedMap.get(x)||[]).length>0).length} lớp đã có HS</span>
+    </div>
+    <div>
+      ${
+        groups.length === 0
+        ? `<div style="opacity:.85;">Chưa có học sinh nào được chọn.</div>`
+        : groups.map(clsName => {
+            const picked = State.studentsPickedMap.get(clsName) || [];
+            const maxN = State.classSizeMap.get(clsName) ?? CONFIG.defaultStudentMax;
+            const nums = picked.length
+              ? `<div class="studentNums">${picked.map(n => `<span class="tagNum">#${n}</span>`).join("")}</div>`
+              : `<div style="margin-top:8px;opacity:.8;">(Chưa chọn HS)</div>`;
+            return `<div class="studentGroup">
+              <div class="h"><span>🏅 ${escapeHtml(clsName)}</span><span style="opacity:.8;">Sĩ số: ${maxN}</span></div>
+              ${nums}
+            </div>`;
+          }).join("")
+      }
+    </div>
+  `;
+  ui.overlayGoldStudents.innerHTML = studHtml;
+}
+function openOverlay(playFX=false){
+  renderOverlayBoards();
+  ui.overlay.classList.add("show");
+  overlayFX.start();
+  if (playFX){
+    wheel.confettiBurst();
+    if (State.sound) AudioFX.fanfare();
+  }
+}
+function closeOverlay(){ ui.overlay.classList.remove("show"); overlayFX.stop(); }
+
+function renderProofList(){
+  const runs = loadRuns().filter(r => r.stageKey === State.stageKey).sort((a,b) => (b.createdAt||"").localeCompare(a.createdAt||""));
+  if (runs.length === 0){
+    ui.proofList.innerHTML = `<div style="opacity:.8;">Chưa có minh chứng nào cho khối này.</div>`;
+    ui.proofPreview.innerHTML = `<div class="goldTitle"><span>📌 Preview</span><span class="goldChip">0 lượt</span></div><div style="opacity:.85;">Chưa có dữ liệu.</div>`;
+    return;
+  }
+  ui.proofList.innerHTML = runs.map(r => {
+    const d = new Date(r.createdAt);
+    const label = isFinite(d) ? d.toLocaleString("vi-VN") : r.createdAt;
+    return `
+      <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.22);">
+        <div style="min-width:0;">
+          <div style="font-weight:900;">${escapeHtml(r.id)}</div>
+          <div style="font-size:12px; opacity:.8; margin-top:2px;">🕒 ${escapeHtml(label)}</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn small" onclick="window.__proofView('${r.id}')">👁️ Xem</button>
+          <button class="btn small" onclick="window.__proofJson('${r.id}')">🧾 JSON</button>
+          <button class="btn small danger" onclick="window.__proofDel('${r.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+  previewRun(runs[0]);
+}
+function previewRun(run){
+  const clsHtml = `
+    <div class="goldTitle">
+      <span>🏛️ Minh chứng – ${escapeHtml(run.stageTitle)}</span>
+      <span class="goldChip">${escapeHtml(run.createdAt)}</span>
+    </div>
+    <div style="font-weight:900;">
+      ${run.classes.map((c, i) => {
+        const nums = (c.students||[]).map(n => `<span class="tagNum">#${n}</span>`).join("");
+        return `
+          <div class="studentGroup">
+            <div class="h"><span>${i+1}. ${escapeHtml(c.name)}</span><span style="opacity:.8;">Sĩ số: ${c.size}</span></div>
+            <div class="studentNums">${nums || '<span style="opacity:.8;">(chưa có HS)</span>'}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+  ui.proofPreview.innerHTML = clsHtml;
+}
+window.__proofView = (id) => { const run = loadRuns().find(r => r.id === id); if (run) previewRun(run); };
+window.__proofJson = (id) => { const run = loadRuns().find(r => r.id === id); if (run) exportJSON(run, `minh-chung-${run.stageKey}-${id}.json`); };
+window.__proofDel = (id) => { if (!confirm(`Xóa minh chứng ${id}?`)) return; deleteRun(id); };
+
+let LOG = [];
+function appendLog(line){
+  const ts = new Date();
+  const time = ts.toLocaleTimeString("vi-VN", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  LOG.push(`[${time}] ${line}`);
+  ui.logBox.textContent = LOG.join("\n");
+}
+function clearLog(){ LOG = []; ui.logBox.textContent = "Chưa có kết quả."; }
+function formatSummary(){
+  let out = [];
+  out.push(`TÓM TẮT – ${STAGES[State.stageKey].title}`);
+  State.classesPicked.forEach((cls, i) => {
+    const list = State.studentsPickedMap.get(cls.pretty) || [];
+    const maxN = State.classSizeMap.get(cls.pretty) ?? CONFIG.defaultStudentMax;
+    out.push(`${i+1}. ${cls.pretty} (Sĩ số ${maxN}): ${list.length ? list.map(n=>`#${n}`).join(", ") : "(chưa chọn)"}`);
+  });
+  return out.join("\n");
+}
+function downloadCSVFromCurrentState(){
+  const rows = [];
+  rows.push(["Khoi","Lop","SiSo","SoThuTuHS"].join(","));
+  const khoi = STAGES[State.stageKey].title;
+  State.classesPicked.forEach(cls => {
+    const clsName = cls.pretty;
+    const maxN = State.classSizeMap.get(clsName) ?? CONFIG.defaultStudentMax;
+    const list = State.studentsPickedMap.get(clsName) || [];
+    if (list.length === 0){
+      rows.push([escapeCSV(khoi), escapeCSV(clsName), maxN, ""].join(","));
+    } else {
+      list.forEach(n => rows.push([escapeCSV(khoi), escapeCSV(clsName), maxN, n].join(",")));
+    }
+  });
+  const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `ket-qua-${State.stageKey}-${Date.now()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+function escapeCSV(s){
+  s = String(s ?? "");
+  if (/[,"\n]/.test(s)) return `"${s.replaceAll('"','""')}"`;
+  return s;
+}
+
+function setWheelSegmentsForClasses(){
+  const segs = State.availableClasses.map((x) => ({ label: x.label, value: x.value, pretty: x.pretty }));
+  wheel.setSegments(segs);
+}
+function rebuildStudentsWheelForCurrentClass(){
+  const cls = State.classesPicked[State.currentClassIdx];
+  if (!cls) return;
+
+  const clsName = cls.pretty;
+  const pickedList = State.studentsPickedMap.get(clsName) || [];
+  let maxN = parseInt(ui.studentMaxInput.value, 10);
+
+  if (!Number.isFinite(maxN) || maxN < 1) maxN = CONFIG.defaultStudentMax;
+  const minAllowed = Math.max(1, ...pickedList, 1);
+  if (maxN < minAllowed) maxN = minAllowed;
+
+  ui.studentMaxInput.value = String(maxN);
+  State.classSizeMap.set(clsName, maxN);
+
+  State.studentsAvailable = range(1, maxN).filter(n => !pickedList.includes(n));
+  const segs = State.studentsAvailable.map(n => ({ label: String(n), value: n, pretty: `HS #${n}` }));
+  wheel.setSegments(segs);
+}
+function startStudentsForClass(){
+  const cls = State.classesPicked[State.currentClassIdx];
+  if (!cls) return;
+
+  State.phase = "students";
+  ui.studentMaxWrap.style.display = "flex";
+
+  const clsName = cls.pretty;
+  const stored = State.classSizeMap.get(clsName);
+  ui.studentMaxInput.value = String(stored ?? CONFIG.defaultStudentMax);
+
+  rebuildStudentsWheelForCurrentClass();
+
+  ui.modeText.textContent = "Chọn học sinh";
+  ui.currentClassText.textContent = clsName;
+
+  const picked = State.studentsPickedMap.get(clsName) || [];
+  ui.progressText.textContent =
+    `${picked.length}/${CONFIG.pickStudentsPerClass} HS • (${State.currentClassIdx+1}/${CONFIG.pickClasses} lớp)`;
+
+  ui.centerLabel.textContent = "Đang chọn học sinh";
+  ui.centerValue.textContent = clsName;
+  ui.centerHint.innerHTML = `Nhập <b>Số HS lớp</b> (nếu cần), rồi bấm <b>QUAY</b>.`;
+
+  updateUndoButton();
+}
+function updateProgressUI(){
+  if (State.phase === "classes"){
+    ui.modeText.textContent = "Chọn lớp";
+    ui.progressText.textContent = `${State.classesPicked.length}/${CONFIG.pickClasses} lớp`;
+    ui.currentClassText.textContent = "–";
+    ui.studentMaxWrap.style.display = "none";
+  } else if (State.phase === "students"){
+    const cls = State.classesPicked[State.currentClassIdx];
+    const clsName = cls.pretty;
+    const picked = State.studentsPickedMap.get(clsName) || [];
+    ui.progressText.textContent =
+      `${picked.length}/${CONFIG.pickStudentsPerClass} HS • (${State.currentClassIdx+1}/${CONFIG.pickClasses} lớp)`;
+    ui.currentClassText.textContent = clsName;
+    ui.studentMaxWrap.style.display = "flex";
+  } else {
+    ui.modeText.textContent = "Hoàn tất";
+    ui.progressText.textContent = "✅ DONE";
+    ui.currentClassText.textContent = "–";
+    ui.studentMaxWrap.style.display = "none";
+  }
+  updateUndoButton();
+}
+function updateUndoButton(){
+  const hasStudentHistory = State.history.some(x => x.type === "student" && x.stageKey === State.stageKey);
+  const show = (State.phase === "students" || State.phase === "done") && hasStudentHistory;
+  ui.undoBtn.style.display = show ? "inline-flex" : "none";
+}
+
+function doSpin(){
+  if (wheel.spinning) return;
+
+  if (State.phase === "done"){
+    wheel.confettiBurst();
+    openOverlay();
+    return;
+  }
+
+  if (State.phase === "students"){
+    rebuildStudentsWheelForCurrentClass();
+  }
+
+  ui.spinBtn.disabled = true;
+  ui.spinBtn.textContent = "⏳ ĐANG QUAY...";
+
+  wheel.spin((chosen) => {
+    ui.centerLabel.textContent = "Kết quả";
+    ui.centerValue.textContent = chosen.pretty || chosen.label || String(chosen.value);
+
+    if (State.phase === "classes"){
+      const idx = State.availableClasses.findIndex(x => x.value === chosen.value);
+      const pickedObj = idx >= 0 ? State.availableClasses[idx] : { value: chosen.value, pretty: classLabel(State.stageKey, chosen.value) };
+
+      State.classesPicked.push(pickedObj);
+      if (idx >= 0) State.availableClasses.splice(idx,1);
+
+      State.lastPop = { type:"class", key:pickedObj.pretty };
+      State.history.push({ type:"class", stageKey: State.stageKey, classValue: pickedObj.value, classPretty: pickedObj.pretty });
+
+      appendLog(`🎯 Chọn lớp: ${pickedObj.pretty}`);
+
+      setWheelSegmentsForClasses();
+
+      if (State.classesPicked.length >= CONFIG.pickClasses){
+        State.currentClassIdx = 0;
+        appendLog(`— Bắt đầu chọn học sinh cho ${CONFIG.pickClasses} lớp —`);
+        startStudentsForClass();
+      } else {
+        ui.centerHint.innerHTML = `Tiếp tục quay để đủ <b>${CONFIG.pickClasses}</b> lớp.`;
+        updateProgressUI();
+      }
+      renderGoldBoards();
+    }
+    else if (State.phase === "students"){
+      const cls = State.classesPicked[State.currentClassIdx];
+      const clsName = cls.pretty;
+
+      let pickedList = State.studentsPickedMap.get(clsName);
+      if (!pickedList) pickedList = [];
+      pickedList.push(chosen.value);
+      State.studentsPickedMap.set(clsName, pickedList);
+
+      State.lastPop = { type:"student", key: `${clsName}#${chosen.value}` };
+      State.history.push({ type:"student", stageKey: State.stageKey, classPretty: clsName, studentNumber: chosen.value });
+
+      appendLog(`👤 ${clsName}: HS #${chosen.value}`);
+
+      rebuildStudentsWheelForCurrentClass();
+
+      if (pickedList.length >= CONFIG.pickStudentsPerClass){
+        appendLog(`✅ Xong ${clsName}: [${pickedList.join(", ")}]`);
+        State.currentClassIdx += 1;
+
+        if (State.currentClassIdx >= CONFIG.pickClasses){
+          State.phase = "done";
+          updateProgressUI();
+          wheel.confettiBurst();
+
+          appendLog(`\n🎉 HOÀN TẤT ${STAGES[State.stageKey].title}!`);
+          appendLog(formatSummary());
+
+          const run = buildRunSnapshot();
+          const savedId = saveRun(run);
+          State.lastSavedRunId = savedId;
+          appendLog(`💾 Đã lưu minh chứng (ID: ${savedId}).`);
+          refreshProofCount();
+
+          openOverlay(true);
+
+          ui.centerLabel.textContent = "Hoàn tất";
+          ui.centerValue.textContent = "🎉 CHÚC MỪNG!";
+          ui.centerHint.innerHTML = `Có thể bấm <b>Trình chiếu</b> để xem bảng vàng full màn hình, hoặc chọn khối khác.`;
+        } else {
+          startStudentsForClass();
+        }
+      } else {
+        updateProgressUI();
+        ui.centerHint.innerHTML = `Còn <b>${CONFIG.pickStudentsPerClass - pickedList.length}</b> học sinh nữa cho lớp này.`;
+      }
+
+      renderGoldBoards();
+    }
+
+    ui.spinBtn.disabled = false;
+    ui.spinBtn.textContent = "🌀 QUAY";
+    updateUndoButton();
+
+    if (State.auto && State.phase !== "done"){
+      setTimeout(() => doSpin(), 520);
+    }
+  });
+}
+
+function undoLastStudent(){
+  if (wheel.spinning) return;
+
+  let idx = -1;
+  for (let i = State.history.length - 1; i >= 0; i--){
+    const h = State.history[i];
+    if (h.type === "student" && h.stageKey === State.stageKey){ idx = i; break; }
+  }
+  if (idx < 0){ appendLog("⚠️ Không có lượt quay học sinh để xóa."); return; }
+
+  const entry = State.history.splice(idx, 1)[0];
+  const clsName = entry.classPretty;
+  const num = entry.studentNumber;
+
+  const list = State.studentsPickedMap.get(clsName) || [];
+  const pos = list.lastIndexOf(num);
+  if (pos >= 0) list.splice(pos, 1);
+  State.studentsPickedMap.set(clsName, list);
+
+  const classIndex = State.classesPicked.findIndex(c => c.pretty === clsName);
+  if (classIndex >= 0){
+    State.currentClassIdx = classIndex;
+    State.phase = "students";
+    startStudentsForClass();
+  }
+
+  renderGoldBoards();
+  updateProgressUI();
+
+  appendLog(`↩️ Đã xóa lượt vừa quay: ${clsName} – HS #${num}`);
+  if (ui.overlay.classList.contains("show")) renderOverlayBoards();
+}
+
+function renderGoldBoards(){
+  ui.goldClassChip.textContent = `${State.classesPicked.length}/${CONFIG.pickClasses} lớp`;
+
+  if (State.classesPicked.length === 0){
+    ui.goldClasses.innerHTML = `<li style="opacity:.85;">Chưa có lớp nào được chọn.</li>`;
+  } else {
+    ui.goldClasses.innerHTML = State.classesPicked.map((c) => {
+      const pop = (State.lastPop.type === "class" && State.lastPop.key === c.pretty) ? "pop" : "";
+      return `<li class="${pop}">✨ ${escapeHtml(c.pretty)}</li>`;
+    }).join("");
+  }
+
+  const groups = State.classesPicked.map(c => c.pretty);
+  const hasAny = groups.some(clsName => (State.studentsPickedMap.get(clsName) || []).length > 0);
+  const doneCount = groups.filter(clsName => (State.studentsPickedMap.get(clsName) || []).length > 0).length;
+  ui.goldStudentChip.textContent = `${doneCount} lớp đã có HS`;
+
+  if (!hasAny){
+    ui.goldStudents.innerHTML = `<div style="opacity:.85;">Chưa có học sinh nào được chọn.</div>`;
+    return;
+  }
+
+  ui.goldStudents.innerHTML = groups.map(clsName => {
+    const picked = State.studentsPickedMap.get(clsName) || [];
+    const maxN = State.classSizeMap.get(clsName) ?? CONFIG.defaultStudentMax;
+    const header = `<div class="h"><span>🏅 ${escapeHtml(clsName)}</span><span style="opacity:.8;">Sĩ số: ${maxN}</span></div>`;
+    const nums = picked.length
+      ? `<div class="studentNums">${
+          picked.map(n => {
+            const pop = (State.lastPop.type === "student" && State.lastPop.key === `${clsName}#${n}`) ? "pop" : "";
+            return `<span class="tagNum ${pop}">#${n}</span>`;
+          }).join("")
+        }</div>`
+      : `<div style="margin-top:8px;opacity:.8;">(Chưa chọn HS)</div>`;
+    return `<div class="studentGroup">${header}${nums}</div>`;
+  }).join("");
+}
+
+/** =========================
+ *  UTIL
+ *  ========================= */
+function range(a,b){ const out = []; for (let i=a;i<=b;i++) out.push(i); return out; }
+function randInt(min, max){ return Math.floor(min + Math.random() * (max - min + 1)); }
+function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;"); }
+
+/** =========================
+ *  UI EVENTS
+ *  ========================= */
+function setActiveGradeButton(key){
+  const map = { "10": ui.btn10, "11": ui.btn11, "12": ui.btn12 };
+  Object.keys(map).forEach(k => {
+    map[k].classList.toggle("active", k === key);
+    map[k].setAttribute("aria-selected", k === key ? "true" : "false");
+  });
+}
+function switchStage(key){
+  if (wheel.spinning) return;
+  setActiveGradeButton(key);
+  initStage(key);
+}
+
+ui.btn10.addEventListener("click", () => switchStage("10"));
+ui.btn11.addEventListener("click", () => switchStage("11"));
+ui.btn12.addEventListener("click", () => switchStage("12"));
+
+ui.spinBtn.addEventListener("click", () => doSpin());
+ui.resetBtn.addEventListener("click", () => { if (!wheel.spinning) initStage(State.stageKey); });
+ui.undoBtn.addEventListener("click", () => undoLastStudent());
+
+ui.soundToggle.addEventListener("change", (e) => {
+  State.sound = e.target.checked;
+  AudioFX.setEnabled(State.sound);
+  appendLog(State.sound ? "🔊 Bật âm thanh." : "🔇 Tắt âm thanh.");
+});
+ui.autoToggle.addEventListener("change", (e) => {
+  State.auto = e.target.checked;
+  appendLog(State.auto ? "🤖 Auto ON." : "🧍 Auto OFF.");
+  if (State.auto && !wheel.spinning && State.phase !== "done"){
+    setTimeout(() => doSpin(), 200);
+  }
+});
+ui.studentMaxInput.addEventListener("change", () => {
+  if (State.phase !== "students" || wheel.spinning) return;
+  rebuildStudentsWheelForCurrentClass();
+  const cls = State.classesPicked[State.currentClassIdx];
+  const clsName = cls.pretty;
+  const maxN = State.classSizeMap.get(clsName) ?? CONFIG.defaultStudentMax;
+  appendLog(`👥 Cập nhật sĩ số ${clsName}: ${maxN}`);
+  renderGoldBoards();
+});
+ui.fsBtn.addEventListener("click", async () => {
+  try{
+    if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+    else await document.exitFullscreen();
+  }catch{
+    appendLog("⚠️ Fullscreen bị chặn bởi trình duyệt.");
+  }
+});
+
+ui.showOverlayBtn.addEventListener("click", () => openOverlay(false));
+ui.overlayCloseBtn.addEventListener("click", () => closeOverlay());
+ui.overlay.addEventListener("click", (e) => { if (e.target === ui.overlay) closeOverlay(); });
+
+ui.overlayCopyBtn.addEventListener("click", async () => {
+  try{ await navigator.clipboard.writeText(formatSummary()); appendLog("📋 Đã copy tóm tắt (overlay)."); }
+  catch{ appendLog("⚠️ Copy thất bại."); }
+});
+ui.overlayCsvBtn.addEventListener("click", () => { if (State.classesPicked.length) downloadCSVFromCurrentState(); });
+ui.overlayJsonBtn.addEventListener("click", () => { exportJSON(buildRunSnapshot(), `snapshot-${State.stageKey}-${Date.now()}.json`); });
+
+ui.proofBtn.addEventListener("click", () => {
+  ui.proofTitle.textContent = `📚 Minh chứng – ${STAGES[State.stageKey].title}`;
+  ui.proofOverlay.classList.add("show");
+  proofFX.start();
+  renderProofList();
+});
+ui.proofCloseBtn.addEventListener("click", () => { ui.proofOverlay.classList.remove("show"); proofFX.stop(); });
+ui.proofOverlay.addEventListener("click", (e) => { if (e.target === ui.proofOverlay) { ui.proofOverlay.classList.remove("show"); proofFX.stop(); }});
+ui.proofExportBtn.addEventListener("click", () => { exportJSON(loadRuns().filter(r => r.stageKey === State.stageKey), `minh-chung-${State.stageKey}-ALL.json`); });
+ui.exportAllBtn.addEventListener("click", () => { exportJSON(loadRuns(), `minh-chung-ALL.json`); });
+
+ui.copyBtn.addEventListener("click", async () => {
+  try{ await navigator.clipboard.writeText(LOG.length ? LOG.join("\n") : ""); appendLog("📋 Đã copy log."); }
+  catch{ appendLog("⚠️ Copy thất bại (trình duyệt chặn clipboard)."); }
+});
+ui.csvBtn.addEventListener("click", () => {
+  if (!State.classesPicked.length){ appendLog("⚠️ Chưa có dữ liệu để xuất CSV."); return; }
+  downloadCSVFromCurrentState();
+  appendLog("⬇️ Đã tải CSV.");
+});
+ui.clearLogBtn.addEventListener("click", () => clearLog());
+
+document.addEventListener("pointerdown", () => AudioFX.resume(), {once:true});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape"){
+    if (ui.overlay.classList.contains("show")) closeOverlay();
+    if (ui.proofOverlay.classList.contains("show")) { ui.proofOverlay.classList.remove("show"); proofFX.stop(); }
+  }
+});
+
+AudioFX.setEnabled(true);
+setActiveGradeButton("10");
+initStage("10");
+
+window.addEventListener("resize", () => {
+  if (ui.overlay.classList.contains("show")) overlayFX.resize();
+  if (ui.proofOverlay.classList.contains("show")) proofFX.resize();
+});
+</script>
+</body>
+</html>
